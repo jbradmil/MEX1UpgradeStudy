@@ -10,6 +10,6 @@ export SCRAM_ARCH=slc6_amd64_gcc481
 cmsrel CMSSW_6_2_0_SLHC26_patch2
 cd CMSSW_6_2_0_SLHC26_patch2/src/
 cmsenv
-git clone git@github.com:MEX1UpgradeStudy.git
+git clone git@github.com:jbradmil/MEX1UpgradeStudy.git
 scram b -j 8
 ```
