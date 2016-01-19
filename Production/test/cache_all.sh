@@ -9,7 +9,7 @@ cd $CMSSW_BASE/tmp
 cachedir
 #cd $CMSSW_BASE/src/.git
 #cachedir
-cd $CMSSW_BASE/src/CSCPostLS2RateStudies/.git
+cd $CMSSW_BASE/src/MEX1UpgradeStudy/.git
 cachedir
 
 cd $current
