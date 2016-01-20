@@ -1,5 +1,8 @@
-# condor submit files
-jobExecCondor_*jdl
+# condor output
+*.condor
+*.stdout
+*.stderr
+jobExecCondor_*.jdl
 
 # Compiled Object files
 *.slo

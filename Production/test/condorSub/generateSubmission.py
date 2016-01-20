@@ -63,6 +63,7 @@ netJobs = nJobs - int(options.firstJob)
 print "I will create "+str(netJobs)+" jobs for you!"
 if options.firstJob>0: print "(starting from job "+str(options.firstJob)+")"
 
+    
 # start loop over N jobs
 nActualJobs = 0
 for iJob in range( int(options.firstJob), nJobs ) :
@@ -72,10 +73,11 @@ for iJob in range( int(options.firstJob), nJobs ) :
     # replace placeholders in template files
     jobname = options.filesConfig
     if nJobs>1: jobname = jobname+"_"+str(iJob)
+        
     os.system("sed -e 's|CMSSWVER|'${CMSSW_VERSION}'|g' "\
                  +"-e 's~OUTDIR~"+options.outputDir+"~g' "\
                  +"-e 's|JOBNAME|"+jobname+"|g' "\
-                 +"-e 's|SAMPLE|"+options.filesConfig+"|g' "\
+                 +"-e 's|SAMPLE|"+readFiles[iJob]+"|g' "\
                  +"-e 's|NPART|"+str(iJob)+"|g' "\
                  +"-e 's|NSTART|"+str(nstart)+"|g' "\
                  +"-e 's|NFILES|"+str(options.nFiles)+"|g' "\
