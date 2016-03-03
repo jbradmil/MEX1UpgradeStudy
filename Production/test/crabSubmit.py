@@ -1,25 +1,32 @@
 ## Configuration file to CRAB3 cfA jobs
-## Submit for src with: crab submit -c crabcfA.py
+## Submit for src with: crab submit -c crabSubmit.py
 
+# first choose a dataset to process
+dataset = '/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola/TP2023SHCALDR-SHCALMar26_PU140BX25_PH2_1K_FB_V6-v1/GEN-SIM-RECO'
 #dataset = '/VBF_HToMuMu_M-125_14TeV-powheg-pythia6/TP2023SHCALDR-SHCALMar26_PU140BX25_PH2_1K_FB_V6-v1/GEN-SIM-RECO'
 #dataset = '/ZprimeSSMToMuMu_M-2500_TuneZ2star_14TeV-pythia6/TP2023SHCALDR-SHCALMar26_PU140BX25_PH2_1K_FB_V6-v1/GEN-SIM-RECO'
-dataset = '/GluGluToHToZZTo4m_M-125_14TeV-powheg-pythia6/TP2023SHCALDR-SHCALMar26_PU140BX25_PH2_1K_FB_V6-v1/GEN-SIM-RECO'
+#dataset = '/GluGluToHToZZTo4m_M-125_14TeV-powheg-pythia6/TP2023SHCALDR-SHCALMar26_PU140BX25_PH2_1K_FB_V6-v1/GEN-SIM-RECO'
 
-#jobname = dataset[1:].replace('/','__')
-#jobname = jobname.replace(':','___')
+# next, set the desired fail rates
+failRateME21 = 0.0
+failRateME31 = 0.0
+failRateME41 = 0.0
 
+# this will automatically format job title
+jobname = dataset[1:dataset.find("/",1)] + '_fr21_%.2f_fr31_%.2f_fr41_%.2f' % (failRateME21, failRateME31, failRateME41)
+jobname = jobname.replace(".","p")
 
 from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'hzz_me21_0p0_me31_me41_0p0'
+config.General.requestName = jobname # 
 config.General.workArea = 'out_crab'
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'run_rereco_cfg.py'
-config.JobType.pyCfgParams = ['outputFile=file:rereco_fail.root', 'failRateME21=0.0', 'failRateME31=0.0', 'failRateME41=0.0']
+config.JobType.pyCfgParams = ['outputFile=file:rereco_fail.root', 'failRateME21=%.2f' % failRateME21, 'failRateME31=%.2f' % failRateME31, 'failRateME41=%.2f' % failRateME41] # fail rates set above, now passed to config params
 
 config.section_("Data")
 config.Data.inputDataset = dataset
@@ -28,8 +35,8 @@ config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 config.Data.publication = False
 config.Data.publishDBS = 'phys03'
+## Note: setting ignoreLocality to true allows the jobs to run at all of the whitelisted sites via xrootd. If you want all the jobs to run locally, set this to false and comment out the whitelist
 config.Data.ignoreLocality = True
-#config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-251252_13TeV_PromptReco_Collisions15_JSON.txt'
 
 config.section_("Site")
 config.Site.storageSite = 'T2_US_UCSD'
