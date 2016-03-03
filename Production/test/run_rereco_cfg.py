@@ -47,15 +47,8 @@ process.maxEvents = cms.untracked.PSet(
 #    fileNames = cms.untracked.vstring(options.inputFiles)
 #)
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("/store/mc/TP2023SHCALDR/ZprimeSSMToMuMu_M-2500_TuneZ2star_14TeV-pythia6/GEN-SIM-RECO/SHCALMar26_PU140BX25_PH2_1K_FB_V6-v1/10000/087C3395-70D9-E411-8076-00266CF9B274.root"
-#"file:/hadoop/cms/store/user/jbradmil/CSCUpgrade/DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_dnash-DYToMuMu_M-20_TuneZ2star_14TeV-pythia6-tauola_2023SHCalNoTaper_PU140_Selectors_RECO-b52ce42d5986c94dc336f39e015d825e_USER/output_100_2_p9i.root"
+    fileNames = cms.untracked.vstring("/store/mc/TP2023SHCALDR/ZprimeSSMToMuMu_M-2500_TuneZ2star_14TeV-pythia6/GEN-SIM-RECO/SHCALMar26_PU140BX25_PH2_1K_FB_V6-v1/10000/087C3395-70D9-E411-8076-00266CF9B274.root")
 )
-)
-
-## process.source = cms.Source("PoolSource",
-##     secondaryFileNames = cms.untracked.vstring(),
-##     fileNames = cms.untracked.vstring('root://cmseos.fnal.gov//store/user/jbradmil/CSC/GluGluToHToZZTo4m_M-125_14TeV-powheg-pythia6/GluGluToHToZZTo4m_M-125_14TeV-powheg-pythia6-GEN-SIM-RECO-test.root')
-## )
 
 process.options = cms.untracked.PSet(
 
