@@ -21,15 +21,19 @@ namespace CSCDataFormats
        muStandAloneEta.clear();
        muStandAlonePhi.clear();
 
+       muStandAloneNStations.clear();
        /* muStandAloneZ.clear(); */
        /* muStandAloneZmumu.clear(); */
 
-       muGenPt.clear();
-       muGenP.clear();
-       muGenEta.clear();
-       muGenPhi.clear();
+       GenPt.clear();
+       GenP.clear();
+       GenEta.clear();
+       GenPhi.clear();
 
-       muGenRecoMatch.clear();
+       GenRecoMatch.clear();
+       GenID.clear();
+       GenMotherID.clear();
+       //       GenStatus.clear();
 
        
        muDeltaPt.clear();
@@ -44,12 +48,17 @@ namespace CSCDataFormats
     std::vector<float> muStandAloneEta;
     std::vector<float> muStandAlonePhi;
 
-    std::vector<float> muGenPt;
-    std::vector<float> muGenP;
-    std::vector<float> muGenEta;
-    std::vector<float> muGenPhi;
+    std::vector<int> muStandAloneNStations;
 
-    std::vector<bool> muGenRecoMatch;
+    std::vector<float> GenPt;
+    std::vector<float> GenP;
+    std::vector<float> GenEta;
+    std::vector<float> GenPhi;
+
+    std::vector<bool> GenRecoMatch;
+    std::vector<int> GenID;
+    std::vector<int> GenMotherID;
+    //    std::vector<int> GenStatus;
 
     std::vector<float> muDeltaPt;
     std::vector<float> muResolution;

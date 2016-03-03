@@ -63,11 +63,6 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
       
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
   bool checkOverload(int station, std::string type, CLHEP::HepRandomEngine& engine);
 
   // ----------member data ---------------------------
@@ -76,6 +71,7 @@ private:
   bool doDDUFailure_;
   bool doUniformFailure_;
   //      double failureRate_;
+  double failRateME21_;
   double failRateME31_;
   double failRateME41_;
   double latency_;
@@ -112,8 +108,9 @@ CFEBBufferOverloadProducer::CFEBBufferOverloadProducer(const edm::ParameterSet& 
   //doDDUFailure_ = iConfig.getUntrackedParameter<bool>("doDDUFailure",true);
   doUniformFailure_ = iConfig.getUntrackedParameter<bool>("doUniformFailure",true);
   //  failureRate_ = iConfig.getUntrackedParameter<double>("failureRate",0.1);
-  failRateME31_ = iConfig.getUntrackedParameter<double>("failRateME31",0.1);
-  failRateME41_ = iConfig.getUntrackedParameter<double>("failRateME41",0.1);
+  failRateME21_ = iConfig.getUntrackedParameter<double>("failRateME21",0.0);
+  failRateME31_ = iConfig.getUntrackedParameter<double>("failRateME31",0.0);
+  failRateME41_ = iConfig.getUntrackedParameter<double>("failRateME41",0.0);
   //latency_ = iConfig.getUntrackedParameter<double>("latency",20.); // in microseconds
   //l1aRate_ = iConfig.getUntrackedParameter<double>("l1aRate",500.); // in kHz
   failME11_ = iConfig.getUntrackedParameter<bool>("failME11",true);
@@ -186,7 +183,7 @@ CFEBBufferOverloadProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	  //if (doDDUFailure_) currChamberOverload = checkOverload(station,"DDU",engine);
 	  for (int cfeb=1; cfeb<6; cfeb++) { 
 	    //if ((station==1 && ring==1 && cfeb>4) || (station==1 && ring==4 && cfeb>3)) continue; // 4(3) dcfebs on me11(/a), 5 cfebs elsewhere
-	    if (station>2 && ring==1) if (doCFEBFailure_) bufferOverloaded[endcap-1][station-1][ring-1][chamber-1][cfeb-1] = checkOverload(station,"CFEB",engine);
+	    if (station>1 && ring==1) if (doCFEBFailure_) bufferOverloaded[endcap-1][station-1][ring-1][chamber-1][cfeb-1] = checkOverload(station,"CFEB",engine);
 	    //if (currChamberOverload) bufferOverloaded[endcap-1][station-1][ring-1][chamber-1][cfeb-1] = true;
 	    //if (bufferOverloaded[endcap-1][station-1][ring-1][chamber-1][cfeb-1] && num<10) {
 	    //   std::cout << " E: " << std::to_string(endcap) 
@@ -224,7 +221,7 @@ CFEBBufferOverloadProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     //std::cout << "CSCDetID: " << currId << " B: " << std::to_string(cfeb);
     if (!bufferOverloaded[currId.endcap()-1][currId.station()-1][currId.ring()-1][currId.chamber()-1][cfeb-1]) {
       //std::cout << " added" << std::endl;
-      hitsInLayer.push_back(hit);
+      hitsInLayer.push_back(hit); // if not overloaded, save the normal rechits to our new collection
     }
     //else {
     //   std::cout << " not added" << std::endl;
@@ -235,15 +232,17 @@ CFEBBufferOverloadProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(oc);
 }
 
-bool
-CFEBBufferOverloadProducer::checkOverload(int station, std::string type, CLHEP::HepRandomEngine& engine)
+bool CFEBBufferOverloadProducer::checkOverload(int station, std::string type, CLHEP::HepRandomEngine& engine)
 {
   double randomNumber = engine.flat();
+  double failRateME21 = failRateME21_;
   double failRateME31 = failRateME31_;
   double failRateME41 = failRateME41_;
+  // printf("Station %d: RandomNumber=%3.2f, FailRate=%3.2f\n", station, randomNumber, (station==3) ? failRateME31 : failRateME41 );
   if (doUniformFailure_) {
-    if (station==3) return (randomNumber<failRateME31);
-    else if (station==3) return (randomNumber<failRateME41);
+    if (station==2) return (randomNumber<failRateME21);
+    else if (station==3) return (randomNumber<failRateME31);
+    else if (station==4) return (randomNumber<failRateME41);
     else return false;
   }
   else { // have an error, give no failure
@@ -262,38 +261,6 @@ void
 CFEBBufferOverloadProducer::endJob() {
 }
 
-// ------------ method called when starting to processes a run  ------------
-/*
-  void
-  CFEBBufferOverloadProducer::beginRun(edm::Run const&, edm::EventSetup const&)
-  {
-  }
-*/
- 
-// ------------ method called when ending the processing of a run  ------------
-/*
-  void
-  CFEBBufferOverloadProducer::endRun(edm::Run const&, edm::EventSetup const&)
-  {
-  }
-*/
- 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-  void
-  CFEBBufferOverloadProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-  {
-  }
-*/
- 
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-  void
-  CFEBBufferOverloadProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-  {
-  }
-*/
- 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 CFEBBufferOverloadProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

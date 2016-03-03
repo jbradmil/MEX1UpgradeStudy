@@ -23,10 +23,12 @@ NTupleMaker::NTupleMaker(const edm::ParameterSet& ps) : tree_(0) {
    genParticles_ = ps.getParameter<edm::InputTag>("genParticles");
 
    cscSTA = new CSCDataFormats::StandAloneMuon();
-   cscSTA_data = cscSTA->getData();
+   //cscSTA_data = cscSTA->getStandAloneCollection();
+   cscGEN_data = cscSTA->getGenCollection();
 
    tree_ = tfs_->make<TTree>("RecoTree", "RecoTree");
-   tree_->Branch("StandAloneMuon", "CSCDataFormats::StandAloneMuonDataFormat", &cscSTA_data, 32000, 3);
+   //tree_->Branch("StandAloneMuon", "CSCDataFormats::StandAloneMuonDataFormat", &cscSTA_data, 32000, 3);
+   tree_->Branch("GenMuon", "CSCDataFormats::StandAloneMuonDataFormat", &cscGEN_data, 32000, 3);
 
 }
 

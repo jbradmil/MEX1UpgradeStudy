@@ -43,7 +43,8 @@ class NTupleMaker : public edm::EDAnalyzer {
       edm::InputTag muons_;
       edm::InputTag genParticles_;
       CSCDataFormats::StandAloneMuon* cscSTA;
-      CSCDataFormats::StandAloneMuonDataFormat* cscSTA_data; 
+      // CSCDataFormats::StandAloneMuonDataFormat* cscSTA_data; 
+      CSCDataFormats::StandAloneMuonDataFormat* cscGEN_data; 
 
 };
 
