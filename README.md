@@ -14,9 +14,16 @@ git clone git@github.com:jbradmil/MEX1UpgradeStudy.git
 scram b -j 8
 ```
 
+There are 3 main stages to this exercise: (1) re-running RECO on a
+SLHC GEN-SIM-RECO sample to simulate CFEB failure and RecHit loss, (2)
+making a flat tree out of the RE-RECO'd sample that (at-the-moment)
+stores gen muons, which may or may not be matched to StandAlone muons,
+and (3) making some simple efficiency plots and kinematic
+distributions from this tree. Steps (1) and (2) can and probably
+should be merged into one step soon.
+
 ### Quick start guide 
-The top-level script for re-running RECO is
-https://github.com/jbradmil/MEX1UpgradeStudy/blob/master/Production/test/run_rereco_cfg.py. It
+The top-level script for re-running RECO is [run_rereco_cfg.py] (https://github.com/jbradmil/MEX1UpgradeStudy/blob/master/Production/test/run_rereco_cfg.py). It
 should run out-of-the-box on a sample Z' file if you do
 
 ```
