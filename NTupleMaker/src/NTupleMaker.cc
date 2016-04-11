@@ -19,22 +19,23 @@
 // Constructor
 NTupleMaker::NTupleMaker(const edm::ParameterSet& ps) : tree_(0) {
 
-   muons_ = ps.getParameter<edm::InputTag>("muons");
+   samuons_ = ps.getParameter<edm::InputTag>("samuons");
+   gmuons_ = ps.getParameter<edm::InputTag>("gmuons");
+   pvs_ = ps.getParameter<edm::InputTag>("pvs");
    genParticles_ = ps.getParameter<edm::InputTag>("genParticles");
 
-   cscSTA = new CSCDataFormats::StandAloneMuon();
+   cscMuon = new CSCDataFormats::CSCMuon();
    //cscSTA_data = cscSTA->getStandAloneCollection();
-   cscGEN_data = cscSTA->getGenCollection();
+   csc_data = cscMuon->getCollections();
 
-   tree_ = tfs_->make<TTree>("RecoTree", "RecoTree");
-   //tree_->Branch("StandAloneMuon", "CSCDataFormats::StandAloneMuonDataFormat", &cscSTA_data, 32000, 3);
-   tree_->Branch("GenMuon", "CSCDataFormats::StandAloneMuonDataFormat", &cscGEN_data, 32000, 3);
+   tree_ = tfs_->make<TTree>("Tree", "Tree");
+   tree_->Branch("CSCMuon", "CSCDataFormats::CSCDataFormat", &csc_data, 32000, 3);
 
 }
 
 NTupleMaker::~NTupleMaker() {
    
-   delete cscSTA;
+   delete cscMuon;
 
 }
 
@@ -46,8 +47,8 @@ void NTupleMaker::endJob() {
 
 void NTupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
-   cscSTA->Reset();
-   cscSTA->Set(e,muons_,genParticles_); 
+   cscMuon->Reset();
+   cscMuon->Set(e, samuons_, gmuons_, pvs_, genParticles_); 
    tree_->Fill();
 
 }

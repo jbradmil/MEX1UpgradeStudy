@@ -1,7 +1,7 @@
-#include "MEX1UpgradeStudy/NTupleMaker/interface/StandAloneMuonDataFormat.h"
+#include "MEX1UpgradeStudy/NTupleMaker/interface/CSCDataFormat.h"
 
 namespace{
   namespace{
-    CSCDataFormats::StandAloneMuonDataFormat cscSTA;
+    CSCDataFormats::CSCDataFormat cscMuon;
   }
 }

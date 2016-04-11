@@ -14,8 +14,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "MEX1UpgradeStudy/NTupleMaker/interface/StandAloneMuon.h"
-#include "MEX1UpgradeStudy/NTupleMaker/interface/StandAloneMuonDataFormat.h"
+#include "MEX1UpgradeStudy/NTupleMaker/interface/CSCMuon.h"
+#include "MEX1UpgradeStudy/NTupleMaker/interface/CSCDataFormat.h"
 
 class TFile;
 class TTree;
@@ -40,11 +40,12 @@ class NTupleMaker : public edm::EDAnalyzer {
       TTree* tree_;
 
    // pat muons
-      edm::InputTag muons_;
+      edm::InputTag samuons_;
+      edm::InputTag gmuons_;
+      edm::InputTag pvs_;
       edm::InputTag genParticles_;
-      CSCDataFormats::StandAloneMuon* cscSTA;
-      // CSCDataFormats::StandAloneMuonDataFormat* cscSTA_data; 
-      CSCDataFormats::StandAloneMuonDataFormat* cscGEN_data; 
+      CSCDataFormats::CSCMuon* cscMuon;
+      CSCDataFormats::CSCDataFormat* csc_data; 
 
 };
 
