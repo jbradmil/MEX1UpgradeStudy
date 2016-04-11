@@ -40,8 +40,7 @@ class NTupleMaker : public edm::EDAnalyzer {
       TTree* tree_;
 
    // pat muons
-      edm::InputTag samuons_;
-      edm::InputTag gmuons_;
+      edm::InputTag muons_;
       edm::InputTag pvs_;
       edm::InputTag genParticles_;
       CSCDataFormats::CSCMuon* cscMuon;

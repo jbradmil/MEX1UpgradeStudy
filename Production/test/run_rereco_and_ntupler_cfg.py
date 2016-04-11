@@ -81,12 +81,20 @@ process.csc2DRecHitsOverload = cms.EDProducer('CFEBBufferOverloadProducer',
 process.cscSegments.inputObjects = "csc2DRecHitsOverload"
 process.csclocalreco = cms.Sequence(process.csc2DRecHitsOverload*process.cscSegments)
 
+# muon customization (turn off isolation calculation until we fix PF)
+process.muons.PFCandidates = cms.InputTag("particleFlow")
+process.muons.FillPFIsolation = False
+process.muons.FillSelectorMaps = False 
+process.muons.FillCosmicsIdMap =  False
+process.muons.FillTimingInfo = False
+process.muons.FillDetectorBasedIsolation = False 
+process.muons.FillShoweringInfo = False
 
 #select good primary vertex
 process.load('CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi')
 
 #process.reconstruction_step = cms.Path(process.offlineBeamSpot*process.csclocalreco*process.standAloneMuonSeeds*process.standAloneMuons*process.muonGlobalReco*process.goodOfflinePrimaryVertices*process.logErrorHarvester)
-process.reconstruction_step = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.clusterSummaryProducer*process.dt4DSegments*process.dt4DCosmicSegments*process.csclocalreco*process.offlineBeamSpot*process.ancientMuonSeed*process.standAloneMuons*process.refittedStandAloneMuons*process.pixelTracks*process.pixelVertices*process.particleFlowRecHitPS*process.offlinePrimaryVertices*process.offlinePrimaryVerticesWithBS*process.goodOfflinePrimaryVertices*process.generalV0Candidates*process.globalMuons*process.tevMuons*process.logErrorHarvester)
+process.reconstruction_step = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.clusterSummaryProducer*process.dt4DSegments*process.dt4DCosmicSegments*process.csclocalreco*process.offlineBeamSpot*process.ancientMuonSeed*process.standAloneMuons*process.refittedStandAloneMuons*process.pixelTracks*process.pixelVertices*process.particleFlowRecHitPS*process.particleFlowClusterPS*process.offlinePrimaryVertices*process.offlinePrimaryVerticesWithBS*process.goodOfflinePrimaryVertices*process.generalV0Candidates*process.globalMuons*process.tevMuons*process.glbTrackQual*process.muons1stStep*process.muons*process.logErrorHarvester)
 
 process.MEtoEDMConverter = cms.EDProducer("MEtoEDMConverter",
     deleteAfterCopy = cms.untracked.bool(True),
@@ -108,9 +116,7 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 process.tree = cms.EDAnalyzer("NTupleMaker",
-                              #muons = cms.InputTag("muons1stStep","","RERECO"),
-                              samuons = cms.InputTag("standAloneMuons","","RERECO"),
-                              gmuons = cms.InputTag("globalMuons","","RERECO"),
+                              muons = cms.InputTag("muons","","RERECO"),                           
                               pvs = cms.InputTag("goodOfflinePrimaryVertices","","RERECO"),
                               genParticles = cms.InputTag("genParticles"),
                               )

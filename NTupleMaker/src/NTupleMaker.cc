@@ -19,8 +19,7 @@
 // Constructor
 NTupleMaker::NTupleMaker(const edm::ParameterSet& ps) : tree_(0) {
 
-   samuons_ = ps.getParameter<edm::InputTag>("samuons");
-   gmuons_ = ps.getParameter<edm::InputTag>("gmuons");
+   muons_ = ps.getParameter<edm::InputTag>("muons");
    pvs_ = ps.getParameter<edm::InputTag>("pvs");
    genParticles_ = ps.getParameter<edm::InputTag>("genParticles");
 
@@ -48,7 +47,7 @@ void NTupleMaker::endJob() {
 void NTupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
    cscMuon->Reset();
-   cscMuon->Set(e, samuons_, gmuons_, pvs_, genParticles_); 
+   cscMuon->Set(e, muons_, pvs_, genParticles_); 
    tree_->Fill();
 
 }

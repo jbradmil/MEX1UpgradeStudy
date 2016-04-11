@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 
@@ -36,6 +37,7 @@ process.source = cms.Source("PoolSource",
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
+
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('test_flat_tree.root'),
                                    )
@@ -43,7 +45,8 @@ process.TFileService = cms.Service("TFileService",
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 process.skim = cms.EDAnalyzer("NTupleMaker",
-                              muons = cms.InputTag("standAloneMuons","","RERECO"),
+                              muons = cms.InputTag("muons","","RERECO"),
+                              pvs = cms.InputTag("goodOfflinePrimaryVertices","","RERECO"),
                               genParticles = cms.InputTag("genParticles"),
                               )
 

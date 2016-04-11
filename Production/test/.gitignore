@@ -29,3 +29,11 @@
 
 # root output
 *.root
+
+# scram junk
+*.pyc
+*.py~
+
+# text output
+*.log
+*.txt
