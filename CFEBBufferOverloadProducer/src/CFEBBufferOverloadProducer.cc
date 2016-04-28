@@ -156,7 +156,7 @@ CFEBBufferOverloadProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   // get random number generator
   edm::Service<edm::RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  CLHEP::HepRandomEngine& engine = rng->getEngine(iEvent.streamID());
 
   // Get the RecHits collection :
   edm::Handle<CSCRecHit2DCollection> recHits;
