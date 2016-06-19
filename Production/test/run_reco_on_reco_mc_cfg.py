@@ -27,7 +27,7 @@ options = VarParsing ('analysis')
 process.MessageLogger.cerr.default.limit = 1000
 
 
-options.inputFiles = "file:/hadoop/cms/store/user/jbradmil/CSCUpgrade/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8-GEN-SIM-RECO.root"
+options.inputFiles = "/store/mc/RunIIFall15DR75/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/GEN-SIM-RECO/Asympt25nsFlat10to30RawReco_HCALDebug_75X_mcRun2_asymptotic_v8-v1/40000/0CD1E87A-5474-E511-A57D-002590491B1C.root"
 options.outputFile = "rereco_fail_me21_me31_me41_0p0000.root"
 options.maxEvents = "-1"
 options.register ('isData', False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "Run on data or MC")
