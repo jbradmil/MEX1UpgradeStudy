@@ -18,130 +18,111 @@ namespace CSCDataFormats
 
       NPV=0;
 
-      GenTLV.clear();
-      GenID.clear();
-      GenMotherID.clear();
-      
-      GenRECOMatch.clear();
-      GRMTLV.clear();
-      GRMDZ.clear();
-      GRMDXY.clear();
-      GRMNStations.clear();
-      GRDeltaPt.clear();
-      GRResolution.clear();
+      mc_pu_weight=0;
 
-      GRMisGlobal.clear();
-      GRMisGoodGlobal.clear();
-      GRMisTracker.clear();
-      GRMisMedium.clear();
-      GRMisMediumPlus.clear();
-      GRMisTight.clear();
+      HLT_IsoMu27_v2 =false;
+      HLT_IsoTkMu27_v2=false;
+      HLT_IsoTkMu24_eta2p1_v2=false;
+      HLT_IsoMu17_eta2p1_v2=false;
 
-      GRMvalidTrkHitFraction.clear();
-      GRMnormalizedGlbTrkChi2.clear();
-      GRMtrkSAchi2LocalPosition.clear();
-      GRMtrkKink.clear();
-      GRMsegmentCompatibility.clear();
-      GRMptRelError.clear();
-      GRMnValidMuonHits.clear();
-      GRMnMatchedStations.clear();
-      GRMnPixelHits.clear();
-      GRMnTrkLayersWithMeasurement.clear();
+      hlt_pat_d3=-10.;
 
-      TLV.clear();
-      dZ.clear();
-      dXY.clear();
-      
-      isGlobal.clear();
-      isGoodGlobal.clear();
-      isTracker.clear();
-      isMedium.clear();
-      isMediumPlus.clear();
-      isTight.clear();
+      mumuMass=0.;
+   
+      mu1TLV.SetXYZT(0,0,0,0);
+      mu1Global=false;
+      mu1Loose=false;
+      mu1Medium=false;
+      mu1Tight=false;
+      mu1DZ=-1000.;
+      mu1DXY=-1000.;
 
-      validTrkHitFraction.clear();
-      normalizedGlbTrkChi2.clear();
-      trkSAchi2LocalPosition.clear();
-      trkKink.clear();
-      segmentCompatibility.clear();
-      ptRelError.clear();
-      nValidMuonHits.clear();
-      nMatchedStations.clear();
-      nPixelHits.clear();
-      nTrkLayersWithMeasurement.clear();
+      mu1_validTrkHitFraction=0;
+      mu1_normalizedGlbTrkChi2=-10;
+      mu1_trkSAchi2LocalPosition=-10;
+      mu1_trkKink=100;
+      mu1_segmentCompatibility=0;
+      mu1_ptRelError=0;
+      mu1_nValidMuonHits=0;
+      mu1_nMatchedStations=0;
+      mu1_nPixelHits=0;
+      mu1_nTrkLayersWithMeasurement=0;
+
+      mu2TLV.SetXYZT(0,0,0,0);
+      mu2Global=false;
+      mu2Loose=false;
+      mu2Medium=false;
+      mu2Tight=false;
+      mu2DZ=-1000.;
+      mu2DXY=-1000.;
+
+      mu2_validTrkHitFraction=0;
+      mu2_normalizedGlbTrkChi2=-10;
+      mu2_trkSAchi2LocalPosition=-10;
+      mu2_trkKink=100;
+      mu2_segmentCompatibility=0;
+      mu2_ptRelError=0;
+      mu2_nValidMuonHits=0;
+      mu2_nMatchedStations=0;
+      mu2_nPixelHits=0;
+      mu2_nTrkLayersWithMeasurement=0;
 
 
-      
-      RECOGenMatch.clear();
-      RECOGenMatchDR.clear();
-      RECOGenMatchID.clear();
-      RECOGenMatchMotherID.clear();
        
     }
 
     int NPV;
+    double mc_pu_weight;
 
-    std::vector<TLorentzVector> GenTLV;
-    std::vector<int> GenID;
-    std::vector<int> GenMotherID;
+    bool HLT_IsoMu27_v2;
+    bool HLT_IsoTkMu27_v2;
+    bool HLT_IsoTkMu24_eta2p1_v2;
+    bool HLT_IsoMu17_eta2p1_v2;
 
-    // properties of the matched reconstructed muon, for convenience
-    std::vector<bool> GenRECOMatch;
-    std::vector<TLorentzVector> GRMTLV;
-    std::vector<float> GRMDZ;
-    std::vector<float> GRMDXY;
-    std::vector<int> GRMNStations;
-    std::vector<float> GRDeltaPt;
-    std::vector<float> GRResolution;
-
-    std::vector<bool> GRMisGlobal;
-    std::vector<bool> GRMisGoodGlobal;
-    std::vector<bool> GRMisTracker;
-    std::vector<bool> GRMisMedium;
-    std::vector<bool> GRMisMediumPlus;
-    std::vector<bool> GRMisTight;
-
-    std::vector<float> GRMvalidTrkHitFraction;
-    std::vector<float> GRMnormalizedGlbTrkChi2;
-    std::vector<float> GRMtrkSAchi2LocalPosition;
-    std::vector<float> GRMtrkKink;
-    std::vector<float> GRMsegmentCompatibility;
-    std::vector<float> GRMptRelError;
-    std::vector<int> GRMnValidMuonHits;
-    std::vector<int> GRMnMatchedStations;
-    std::vector<int> GRMnPixelHits;
-    std::vector<int> GRMnTrkLayersWithMeasurement;
- 
-
-    std::vector<TLorentzVector> TLV;
-    std::vector<float> dZ;
-    std::vector<float> dXY;
-
-    std::vector<bool> isGlobal;
-    std::vector<bool> isGoodGlobal;
-    std::vector<bool> isTracker;
-    std::vector<bool> isMedium;
-    std::vector<bool> isMediumPlus;
-    std::vector<bool> isTight;
-
-    std::vector<float> validTrkHitFraction;
-    std::vector<float> normalizedGlbTrkChi2;
-    std::vector<float> trkSAchi2LocalPosition;
-    std::vector<float> trkKink;
-    std::vector<float> segmentCompatibility;
-    std::vector<float> ptRelError;
-    std::vector<int> nValidMuonHits;
-    std::vector<int> nMatchedStations;
-    std::vector<int> nPixelHits;
-    std::vector<int> nTrkLayersWithMeasurement;
- 
-
+    double hlt_pat_d3;
     
-    std::vector<bool> RECOGenMatch;
-    std::vector<float> RECOGenMatchDR;
-    std::vector<int> RECOGenMatchID;
-    std::vector<int> RECOGenMatchMotherID;
+    double mumuMass;
 
+
+    TLorentzVector mu1TLV;
+    bool mu1Global;
+    bool mu1Loose;
+    bool mu1Medium;
+    bool mu1Tight;
+    double mu1DZ;
+    double mu1DXY;
+
+    double mu1_validTrkHitFraction; 
+    double mu1_normalizedGlbTrkChi2; 
+    double mu1_trkSAchi2LocalPosition; 
+    double mu1_trkKink; 
+    double mu1_segmentCompatibility; 
+    double mu1_ptRelError; 
+    int mu1_nValidMuonHits; 
+    int mu1_nMatchedStations; 
+    int mu1_nPixelHits; 
+    int mu1_nTrkLayersWithMeasurement; 
+   
+    TLorentzVector mu2TLV;
+    bool mu2Global;
+    bool mu2Loose;
+    bool mu2Medium;
+    bool mu2Tight;
+    double mu2DZ;
+    double mu2DXY;
+    
+
+    double mu2_validTrkHitFraction; 
+    double mu2_normalizedGlbTrkChi2; 
+    double mu2_trkSAchi2LocalPosition; 
+    double mu2_trkKink; 
+    double mu2_segmentCompatibility; 
+    double mu2_ptRelError; 
+    int mu2_nValidMuonHits; 
+    int mu2_nMatchedStations; 
+    int mu2_nPixelHits; 
+    int mu2_nTrkLayersWithMeasurement; 
+ 
 
   };
 }

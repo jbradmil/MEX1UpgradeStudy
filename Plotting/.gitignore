@@ -27,5 +27,6 @@
 *.out
 *.app
 
-# other
+$ Other
+*.pcm
 *.d

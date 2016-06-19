@@ -6,185 +6,156 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
 #include <cmath>
 #include "TLorentzVector.h"
 
+using std::cout;
+using std::endl;
+
 CSCDataFormats::CSCMuon::CSCMuon() 
 {
+
+  
 }
 
 CSCDataFormats::CSCMuon::~CSCMuon() 
 {
 }
 
-void CSCDataFormats::CSCMuon::Set(const edm::Event& e, const edm::InputTag& muons_, const edm::InputTag& pvs_, const edm::InputTag& genParticles_) 
+void CSCDataFormats::CSCMuon::Set(const edm::Event& iEvent, bool isData, edm::Handle<edm::View<reco::Muon> > muons, edm::Handle<edm::TriggerResults> triggerBits, edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects, edm::Handle<reco::VertexCollection> pvs) 
 {
-  edm::Handle<std::vector<reco::Muon>> muons;
-  e.getByLabel(muons_,muons);
+ 
 
-  edm::Handle<std::vector<reco::GenParticle>> genParticles;
-  e.getByLabel(genParticles_,genParticles);
-
-  edm::Handle<std::vector<reco::Vertex>> pvs;
-  e.getByLabel(pvs_,pvs);
+  if (pvs->empty()) return; // skip the event if no PV found
+  const reco::Vertex &PV = pvs->front();
   coll_.NPV = pvs->size();
 
+  coll_.mc_pu_weight = GetPUWeight(coll_.NPV);
 
-  for(std::vector<reco::GenParticle>::const_iterator igen=genParticles->begin(); igen!=genParticles->end(); ++igen){
-    if (!(std::abs(igen->pdgId())==13 && igen->status()==1)) continue; // only gen final state muons
-    coll_.GenTLV.push_back( TLorentzVector(igen->px(), igen->py(), igen->pz(), igen->energy()) );
-    coll_.GenID.push_back(igen->pdgId());
-    coll_.GenMotherID.push_back(GetMotherID(&(*igen)));
-    // bool foundRECO=false;
-    for(std::vector<reco::Muon>::const_iterator ireco=muons->begin(); ireco!=muons->end(); ++ireco){ // was it reconstructed as SA?
-      if (std::abs(deltaR<reco::Muon,reco::GenParticle>(*ireco,*igen))<0.2) { // found a match -- note: currently not filling unless there's a match
-	coll_.GenRECOMatch.push_back(true);
-	// note GRM = GenRecoMatch
-	coll_.GRMTLV.push_back( TLorentzVector(ireco->px(), ireco->py(), ireco->pz(), sqrt(ireco->px()*ireco->px() + ireco->py()*ireco->py() + ireco->pz()*ireco->pz())) );
-	coll_.GRMDZ.push_back(ireco->muonBestTrack()->dz(pvs->at(0).position()));
-	coll_.GRMDXY.push_back(ireco->muonBestTrack()->dxy(pvs->at(0).position()));
-	coll_.GRDeltaPt.push_back(ireco->pt()-igen->pt());
-	coll_.GRResolution.push_back(1/ireco->pt()-1/igen->pt());
-	// id and muon type
-	coll_.GRMisGlobal.push_back(ireco->isGlobalMuon());
-	coll_.GRMisGoodGlobal.push_back(isGoodGlobal(&(*ireco)));
-	coll_.GRMisTracker.push_back(ireco->isTrackerMuon());
-	coll_.GRMisMedium.push_back(isMedium(&(*ireco)));
-	coll_.GRMisMediumPlus.push_back(isMediumPlus(&(*ireco), pvs->at(0)));
-	coll_.GRMisTight.push_back(isTight(&(*ireco), pvs->at(0)));
-	// ID variables
-	const reco::Muon * recoMu = &(*ireco);
-	if (recoMu->isGlobalMuon() || recoMu->isTrackerMuon()) { 
-	  coll_.GRMvalidTrkHitFraction.push_back(recoMu->innerTrack()->validFraction());
-	  if (recoMu->isGlobalMuon()) coll_.GRMnormalizedGlbTrkChi2.push_back(recoMu->globalTrack()->normalizedChi2());
-	  else coll_.GRMnormalizedGlbTrkChi2.push_back(-10);
-	  coll_.GRMtrkSAchi2LocalPosition.push_back(recoMu->combinedQuality().chi2LocalPosition);
-	  coll_.GRMtrkKink.push_back(recoMu->combinedQuality().trkKink);
-	  coll_.GRMptRelError.push_back(recoMu->muonBestTrack()->ptError()/recoMu->muonBestTrack()->pt());
-	  coll_.GRMsegmentCompatibility.push_back(muon::segmentCompatibility(*recoMu));
-	  if (recoMu->isGlobalMuon())coll_.GRMnValidMuonHits.push_back(recoMu->globalTrack()->hitPattern().numberOfValidMuonHits());
-	  else coll_.GRMnValidMuonHits.push_back(0);
-	  coll_.GRMnMatchedStations.push_back(recoMu->numberOfMatchedStations());
-	  coll_.GRMnPixelHits.push_back(recoMu->innerTrack()->hitPattern().numberOfValidPixelHits());
-	  coll_.GRMnTrkLayersWithMeasurement.push_back(recoMu->innerTrack()->hitPattern().trackerLayersWithMeasurement() );
-	} else {
-	  coll_.GRMvalidTrkHitFraction.push_back(0);
-	  coll_.GRMnormalizedGlbTrkChi2.push_back(-10);
-	  coll_.GRMtrkSAchi2LocalPosition.push_back(-10);
-	  coll_.GRMtrkKink.push_back(-10);
-	  coll_.GRMsegmentCompatibility.push_back(-10);
-	  coll_.GRMptRelError.push_back(-10);
-	  coll_.GRMnValidMuonHits.push_back(0);
-	  coll_.GRMnMatchedStations.push_back(0);
-	  coll_.GRMnPixelHits.push_back(0);
-	  coll_.GRMnTrkLayersWithMeasurement.push_back(0);
-	}
-	//foundRECO=true;
-	break;
-      } // standalone match
-    }// standalone muon loop
-    // if (!foundRECO) {
-    //   coll_.GenRECOMatch.push_back(false);
-    //   coll_.GenRECOMatchTLV.push_back( TLorentzVector(0,0,0,0) );
-    //   coll_.GenRECOMatchDZ.push_back(-9.);
-    //   coll_.GenRECOMatchDXY.push_back(-9.);
-    //   coll_.GenRECODeltaPt.push_back(-999.);
-    //   coll_.GenRECOResolution.push_back(-999.);
-    // }
-  } // gen particles loop
-   
-    // standalone loop -- under development
-  int nRECO(0);
-  for(std::vector<reco::Muon>::const_iterator ireco=muons->begin(); ireco!=muons->end(); ++ireco){
-    // if (fabs(ireco->dz()) > 20 || fabs(ireco->dXY()) > 0.3) continue; // most basic IP cuts
-    nRECO++;
-    //    printf("RECO muon %d\n", nRECO);
-
-    coll_.TLV.push_back( TLorentzVector(ireco->px(), ireco->py(), ireco->pz(), sqrt(ireco->px()*ireco->px() + ireco->py()*ireco->py() + ireco->pz()*ireco->pz())) );
-    // vtx cuts
-    coll_.dZ.push_back(ireco->muonBestTrack()->dz(pvs->at(0).position()));
-    coll_.dXY.push_back(ireco->muonBestTrack()->dxy(pvs->at(0).position()));
-    // id and muon type
-    coll_.isGlobal.push_back(ireco->isGlobalMuon());
-    coll_.isGoodGlobal.push_back(isGoodGlobal(&(*ireco)));
-    coll_.isTracker.push_back(ireco->isTrackerMuon());
-    coll_.isMedium.push_back(isMedium(&(*ireco)));
-    coll_.isMediumPlus.push_back(isMediumPlus(&(*ireco), pvs->at(0)));
-    coll_.isTight.push_back(isTight(&(*ireco), pvs->at(0)));
-    // ID variables
-    const reco::Muon * recoMu = &(*ireco);
-    if (recoMu->isGlobalMuon() || recoMu->isTrackerMuon()) { 
-      coll_.validTrkHitFraction.push_back(recoMu->innerTrack()->validFraction());
-      if (recoMu->isGlobalMuon()) coll_.normalizedGlbTrkChi2.push_back(recoMu->globalTrack()->normalizedChi2());
-      else coll_.normalizedGlbTrkChi2.push_back(-10);
-      coll_.trkSAchi2LocalPosition.push_back(recoMu->combinedQuality().chi2LocalPosition);
-      coll_.trkKink.push_back(recoMu->combinedQuality().trkKink);
-      coll_.ptRelError.push_back(recoMu->muonBestTrack()->ptError()/recoMu->muonBestTrack()->pt());
-      coll_.segmentCompatibility.push_back(muon::segmentCompatibility(*recoMu));
-      if (recoMu->isGlobalMuon()) coll_.nValidMuonHits.push_back(recoMu->globalTrack()->hitPattern().numberOfValidMuonHits());
-      else coll_.nValidMuonHits.push_back(0);
-      coll_.nMatchedStations.push_back(recoMu->numberOfMatchedStations());
-      coll_.nPixelHits.push_back(recoMu->innerTrack()->hitPattern().numberOfValidPixelHits());
-      coll_.nTrkLayersWithMeasurement.push_back(recoMu->innerTrack()->hitPattern().trackerLayersWithMeasurement() );
-    } else {
-      coll_.validTrkHitFraction.push_back(0);
-      coll_.normalizedGlbTrkChi2.push_back(-10);
-      coll_.trkSAchi2LocalPosition.push_back(-10);
-      coll_.trkKink.push_back(-10);
-      coll_.segmentCompatibility.push_back(-10);
-      coll_.ptRelError.push_back(-10);
-      coll_.nValidMuonHits.push_back(0);
-      coll_.nMatchedStations.push_back(0);
-      coll_.nPixelHits.push_back(0);
-      coll_.nTrkLayersWithMeasurement.push_back(0);
-  }
-    
-    double minDR=999.;
-    reco::GenParticle* match(NULL);
-    for(std::vector<reco::GenParticle>::const_iterator igen=genParticles->begin(); igen!=genParticles->end(); ++igen){ // now match this to gen particle
-      if (igen->status()!=1) continue; // final state only
-      double DR = std::abs(deltaR<reco::Muon,reco::GenParticle>(*ireco,*igen));
-      if (DR<0.2&&abs(igen->pdgId())==13) {
-  	match = (reco::GenParticle*)&(*igen);
-	break;
-      }
-      //    printf("\tFinal state particle %d -- DR = %3.4f\n", igen->pdgId(), DR);
-      if (DR<minDR) {
-  	minDR=DR;
-  	match = (reco::GenParticle*)&(*igen);
-	//	printf("\tThis is the new match!\n");
-	//  	if (DR<0.2&&abs(igen->pdgId())==13) break;
-      }
-    } // gen loop
-    coll_.RECOGenMatchDR.push_back(minDR);
-    if (minDR<0.2) {
-      coll_.RECOGenMatch.push_back(true);
-      coll_.RECOGenMatchID.push_back(match->pdgId());
-      coll_.RECOGenMatchMotherID.push_back(GetMotherID(match));
-    } else{
-      coll_.RECOGenMatch.push_back(false);
-      coll_.RECOGenMatchID.push_back(0);
-      coll_.RECOGenMatchMotherID.push_back(0);
+  TVector3 hlt_muon(0,0,0);
+  const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
+  //  std::cout << "\n === TRIGGER PATHS === " << std::endl;
+  for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
+    if (!triggerBits->accept(i)) continue;
+    if ( names.triggerName(i) == "HLT_IsoMu27_v2") {
+      coll_.HLT_IsoMu27_v2=true;
+      //      std::cout << "Trigger " << names.triggerName(i) << 
+      //	//      ", prescale " << triggerPrescales->getPrescaleForIndex(i) <<
+      //	": " << (triggerBits->accept(i) ? "PASS" : "fail (or not run)") 
+      //		<< std::endl;
     }
-  } // standalone loop
+    if ( names.triggerName(i) == "HLT_IsoTkMu27_v2") coll_.HLT_IsoTkMu27_v2=true;
+    if ( names.triggerName(i) == "HLT_IsoTkMu24_eta2p1_v2") coll_.HLT_IsoTkMu24_eta2p1_v2=true;
+    if ( names.triggerName(i) == "HLT_IsoMu17_eta2p1_v2") coll_.HLT_IsoMu17_eta2p1_v2=true;
+  }
+
+  if (!coll_.HLT_IsoMu27_v2) return; // JACK
 
   
+  for (pat::TriggerObjectStandAlone obj : *triggerObjects) { // note: not "const &" since we want to call unpackPathNames
+    obj.unpackPathNames(names);
+    TString name(obj.collection());
+    if(name!="hltL3MuonCandidates::HLT") continue;
+    //    std::cout << "\tTrigger object:  px " << obj.px() << ", py " << obj.py() << ", pz " << obj.pz() << std::endl;
+    hlt_muon.SetXYZ(obj.px(), obj.py(), obj.pz());
+    break;
+  }
+
+
+
+ TVector3 pat_muon(0,0,0);
+ int hlt_match(-1);
+ double minD3(999.);
+ for (int ipat=0; ipat<(int)muons->size();ipat++) {
+   if ( muons->at(ipat).pt() < 27 ) continue;
+   pat_muon.SetXYZ(muons->at(ipat).px(), muons->at(ipat).py(), muons->at(ipat).pz());
+   double D3 = (hlt_muon-pat_muon).Mag();
+   if (D3<minD3) {
+     minD3 = D3;
+     hlt_match = ipat;
+   }
+ }
+ if (hlt_match<0) {
+   // cout << "Could not match pat muon to hlt muon" << endl;
+   return;
+ }
+ // cout << "Matched pat muon " << hlt_match << ", (" << pat_muon.X() << ", " << pat_muon.Y() << ", " << pat_muon.Z() << ") to hlt muon, D3 = " << minD3 << endl;
+ coll_.hlt_pat_d3 = minD3;
+ TLorentzVector TLV1;
+ TLV1.SetVectM(pat_muon, 0.);
+ coll_.mu1TLV = TLV1;
+ coll_.mu1Global=muons->at(hlt_match).isGlobalMuon();
+ // coll_.mu1Loose=muons->at(hlt_match).isLooseMuon();
+ coll_.mu1Medium=isMediumPlus(&muons->at(hlt_match), PV);
+ coll_.mu1Tight=isTight(&muons->at(hlt_match), PV);
+ coll_.mu1DZ=muons->at(hlt_match).muonBestTrack()->dz(PV.position());
+ coll_.mu1DXY=muons->at(hlt_match).muonBestTrack()->dxy(PV.position());
+ if (muons->at(hlt_match).isGlobalMuon() || muons->at(hlt_match).isTrackerMuon()) { 
+   coll_.mu1_validTrkHitFraction = muons->at(hlt_match).innerTrack()->validFraction();
+   if (muons->at(hlt_match).isGlobalMuon()) coll_.mu1_normalizedGlbTrkChi2 = muons->at(hlt_match).globalTrack()->normalizedChi2();
+   else coll_.mu1_normalizedGlbTrkChi2 = -10;
+   coll_.mu1_trkSAchi2LocalPosition = muons->at(hlt_match).combinedQuality().chi2LocalPosition;
+   coll_.mu1_trkKink = muons->at(hlt_match).combinedQuality().trkKink;
+   coll_.mu1_ptRelError = muons->at(hlt_match).muonBestTrack()->ptError()/muons->at(hlt_match).muonBestTrack()->pt();
+   coll_.mu1_segmentCompatibility = muon::segmentCompatibility(muons->at(hlt_match));
+   if (muons->at(hlt_match).isGlobalMuon()) coll_.mu1_nValidMuonHits = muons->at(hlt_match).globalTrack()->hitPattern().numberOfValidMuonHits();
+   else coll_.mu1_nValidMuonHits = 0;
+   coll_.mu1_nMatchedStations = muons->at(hlt_match).numberOfMatchedStations();
+   coll_.mu1_nPixelHits = muons->at(hlt_match).innerTrack()->hitPattern().numberOfValidPixelHits();
+   coll_.mu1_nTrkLayersWithMeasurement = muons->at(hlt_match).innerTrack()->hitPattern().trackerLayersWithMeasurement() ;
+ }
+  
+ // now find another muon
+ TLorentzVector TLV2;
+ for (int ipat=0; ipat<(int)muons->size();ipat++) {
+   if (ipat==hlt_match) continue;
+   if (muons->at(ipat).muonBestTrack()->dz(PV.position())>20 || muons->at(ipat).muonBestTrack()->dxy(PV.position())>0.3) continue;
+   if (muons->at(ipat).charge() == muons->at(hlt_match).charge()) continue; // must be OS
+   // printf("2nd muon with pt %4.1f, dz(PV) %+5.3f, POG loose id %d, tight id %d\n",
+   // 	   muons->at(ipat).pt(), muons->at(ipat).muonBestTrack()->dz(PV.position()), muons->at(ipat).isLooseMuon(), muons->at(ipat).isTightMuon(PV));
+   TLV2.SetPtEtaPhiM(muons->at(ipat).pt(), muons->at(ipat).eta(), muons->at(ipat).phi(), 0.);
+   coll_.mu2Global=muons->at(ipat).isGlobalMuon();
+   //coll_.mu2Loose=muons->at(ipat).isLooseMuon();
+   coll_.mu2Medium=isMediumPlus(&muons->at(ipat), PV);
+   coll_.mu2Tight=isTight(&muons->at(ipat), PV);
+   coll_.mu2DZ=muons->at(ipat).muonBestTrack()->dz(PV.position());
+   coll_.mu2DXY=muons->at(ipat).muonBestTrack()->dxy(PV.position());
+   if (muons->at(ipat).isGlobalMuon() || muons->at(ipat).isTrackerMuon()) { 
+     coll_.mu2_validTrkHitFraction = muons->at(ipat).innerTrack()->validFraction();
+     if (muons->at(ipat).isGlobalMuon()) coll_.mu2_normalizedGlbTrkChi2 = muons->at(ipat).globalTrack()->normalizedChi2();
+     else coll_.mu2_normalizedGlbTrkChi2 = -10;
+     coll_.mu2_trkSAchi2LocalPosition = muons->at(ipat).combinedQuality().chi2LocalPosition;
+     coll_.mu2_trkKink = muons->at(ipat).combinedQuality().trkKink;
+     coll_.mu2_ptRelError = muons->at(ipat).muonBestTrack()->ptError()/muons->at(ipat).muonBestTrack()->pt();
+     coll_.mu2_segmentCompatibility = muon::segmentCompatibility(muons->at(ipat));
+     if (muons->at(ipat).isGlobalMuon()) coll_.mu2_nValidMuonHits = muons->at(ipat).globalTrack()->hitPattern().numberOfValidMuonHits();
+     else coll_.mu2_nValidMuonHits = 0;
+     coll_.mu2_nMatchedStations = muons->at(ipat).numberOfMatchedStations();
+     coll_.mu2_nPixelHits = muons->at(ipat).innerTrack()->hitPattern().numberOfValidPixelHits();
+     coll_.mu2_nTrkLayersWithMeasurement = muons->at(ipat).innerTrack()->hitPattern().trackerLayersWithMeasurement() ;
+   }
+   break;
+ }
+
+ coll_.mu2TLV = TLV2;
+ coll_.mumuMass = (coll_.mu1TLV + coll_.mu2TLV).M();
+
 }
 
-int CSCDataFormats::CSCMuon::GetMotherID( const reco::Candidate * p ){
-  const reco::Candidate* mother = p->mother();
-  if( mother ){
-    if( mother->pdgId() == p->pdgId() ){
-      return GetMotherID(mother);
-    }else{
-      return mother->pdgId();
-    }
-  }else{
-    return 0;
-  }
-}
+// int CSCDataFormats::CSCMuon::GetMotherID( const reco::Candidate * p ){
+//   const reco::Candidate* mother = p->mother();
+//   if( mother ){
+//     if( mother->pdgId() == p->pdgId() ){
+//       return GetMotherID(mother);
+//     }else{
+//       return mother->pdgId();
+//     }
+//   }else{
+//     return 0;
+//   }
+// }
 
 bool CSCDataFormats::CSCMuon::isGoodGlobal( const reco::Muon * recoMu ){
 
@@ -218,4 +189,13 @@ bool CSCDataFormats::CSCMuon::isTight( const reco::Muon * recoMu, const reco::Ve
        && recoMu->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5) return true;
   else return false;
   
+}
+
+double CSCDataFormats::CSCMuon::GetPUWeight( const int NPV ){
+  
+  if (NPV<10) return 17.3305;
+  else if (NPV<20) return 2.52133;
+  else if (NPV<30) return 0.0604228;
+  else return 0.000279073;
+
 }

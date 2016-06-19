@@ -16,25 +16,33 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+
 // Constructor
-NTupleMaker::NTupleMaker(const edm::ParameterSet& ps) : tree_(0) {
+NTupleMaker::NTupleMaker(const edm::ParameterSet& iConfig) : tree_(0) {
 
-   muons_ = ps.getParameter<edm::InputTag>("muons");
-   pvs_ = ps.getParameter<edm::InputTag>("pvs");
-   genParticles_ = ps.getParameter<edm::InputTag>("genParticles");
+  isData_ = iConfig.getParameter<bool>("isData");
+  muons_ = iConfig.getParameter<edm::InputTag>("muons");
+  muonTok_ = consumes<edm::View<reco::Muon>>(muons_);
+  bits_ = iConfig.getParameter<edm::InputTag>("bits");
+  bitsTok_ = consumes<edm::TriggerResults>(bits_);
+  trigObjects_ = iConfig.getParameter<edm::InputTag>("objects");
+  trigObjectsTok_ = consumes<pat::TriggerObjectStandAloneCollection>(trigObjects_);
+  pvs_ = iConfig.getParameter<edm::InputTag>("pvs");
+  pvTok_ = consumes<reco::VertexCollection>(pvs_);
+  // genParticles_ = iConfig.getParameter<edm::InputTag>("genParticles");
 
-   cscMuon = new CSCDataFormats::CSCMuon();
-   //cscSTA_data = cscSTA->getStandAloneCollection();
-   csc_data = cscMuon->getCollections();
+  cscMuon = new CSCDataFormats::CSCMuon();
+  //cscSTA_data = cscSTA->getStandAloneCollection();
+  csc_data = cscMuon->getCollections();
 
-   tree_ = tfs_->make<TTree>("Tree", "Tree");
-   tree_->Branch("CSCMuon", "CSCDataFormats::CSCDataFormat", &csc_data, 32000, 3);
+  tree_ = tfs_->make<TTree>("Tree", "Tree");
+  tree_->Branch("CSCMuon", "CSCDataFormats::CSCDataFormat", &csc_data, 32000, 3);
 
 }
 
 NTupleMaker::~NTupleMaker() {
    
-   delete cscMuon;
+  delete cscMuon;
 
 }
 
@@ -44,11 +52,25 @@ void NTupleMaker::beginJob(void) {
 void NTupleMaker::endJob() {
 }
 
-void NTupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
+void NTupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& es) {
 
-   cscMuon->Reset();
-   cscMuon->Set(e, muons_, pvs_, genParticles_); 
-   tree_->Fill();
+  cscMuon->Reset();
+
+  edm::Handle<edm::View<reco::Muon> > muons;
+  iEvent.getByToken(muonTok_,muons);
+
+  edm::Handle<edm::TriggerResults> triggerBits;
+  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
+  iEvent.getByToken(bitsTok_, triggerBits);
+  iEvent.getByToken(trigObjectsTok_, triggerObjects);
+
+  
+  edm::Handle<reco::VertexCollection> pvs;
+  iEvent.getByToken(pvTok_, pvs);
+
+   
+  cscMuon->Set(iEvent, isData_, muons, triggerBits, triggerObjects, pvs); 
+  tree_->Fill();
 
 }
 

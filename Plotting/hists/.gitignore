@@ -1,9 +1,3 @@
-# condor output
-*.condor
-*.stdout
-*.stderr
-jobExecCondor_*.jdl
-
 # Compiled Object files
 *.slo
 *.lo
@@ -32,3 +26,6 @@ jobExecCondor_*.jdl
 *.exe
 *.out
 *.app
+
+$ Other
+*.pcm

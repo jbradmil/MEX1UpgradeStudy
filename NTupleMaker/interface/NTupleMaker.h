@@ -14,6 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+
 #include "MEX1UpgradeStudy/NTupleMaker/interface/CSCMuon.h"
 #include "MEX1UpgradeStudy/NTupleMaker/interface/CSCDataFormat.h"
 
@@ -39,10 +40,19 @@ class NTupleMaker : public edm::EDAnalyzer {
       edm::Service<TFileService> tfs_;
       TTree* tree_;
 
-   // pat muons
+      bool isData_;
+      
       edm::InputTag muons_;
-      edm::InputTag pvs_;
-      edm::InputTag genParticles_;
+      edm::EDGetTokenT<edm::View<reco::Muon>> muonTok_;
+      edm::InputTag bits_;
+      edm::EDGetTokenT<edm::TriggerResults> bitsTok_;
+      edm::InputTag trigObjects_;
+      edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> trigObjectsTok_;
+      edm::InputTag pvs_; 
+      edm::EDGetTokenT<reco::VertexCollection> pvTok_;
+
+
+      /* edm::InputTag genParticles_; */
       CSCDataFormats::CSCMuon* cscMuon;
       CSCDataFormats::CSCDataFormat* csc_data; 
 

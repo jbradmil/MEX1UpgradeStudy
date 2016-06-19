@@ -9,20 +9,9 @@
 #include "TLine.h"
 #include "TColor.h"
 
-/* TColor uscb_blue(1000, 1/255.,57/255.,166/255.); */
-/* TColor uscb_gold(1001, 255/255.,200/255.,47/255); */
-/* TColor penn_red(1002, 149/255.,0/255.,26/255.); */
-/* TColor ut_orange(1003, 191/255.,87/255.,0/255.); */
-/* //TColor pantone(1003, 255/255.,88/255.,0/255.); */
-/* TColor uo_green(1004, 0/255.,79/255.,39/255.); */
-/* TColor tcu_purple(1005, 52/255.,42/255.,123/255.); */
-/* TColor tar_heel_blue(1006, 86/255.,160/255.,211/255.); */
-/* TColor cool_teal(1007, 2/255.,132/255.,130/255.); */
-/* TColor signal_gold(1008, 204/255.,145/255.,38/255.); */
-
-TColor uscb_blue(5000, 1/255.,57/255.,166/255.); 
- TColor penn_red(5002, 149/255.,0/255.,26/255.); 
- TColor uo_green(5004, 0/255.,79/255.,39/255.);
+TColor uscb_blue(4000, 1/255.,57/255.,166/255.); 
+ TColor penn_red(4002, 149/255.,0/255.,26/255.); 
+ TColor uo_green(4004, 0/255.,79/255.,39/255.);
 
 
 TColor ucsb_blue_lite(2000, 13/255.,67/255.,255/255.);
@@ -41,6 +30,52 @@ TColor c_iso(3002, 201/255., 191/255., 138/255.);
 TColor uw_gold(3003, 145/255., 123/255., 76/255.);
 TColor pretty_purple(3004, 86/255., 69/255., 603/255.);
 TColor rose_quartz(3005, 240/255., 187/255., 183/255.);
+
+
+TColor znng(5000, 0/255., 113/255., 170/255.);
+TColor wlnug(5001, 64/255., 141/255., 112/255.);
+TColor wenu(5002, 161/255., 72/255., 48/255.);
+TColor gjets(5003, 184/255., 192/255., 92/255.);
+TColor qcd(5004, 72/255., 64/255., 67/255.);
+TColor qcd2(5006, 105/255., 105/255., 105/255.);
+TColor st_pastel(5005, 143/255., 117/255., 145/255.);
+
+void set_style_pastel(TH1 * h, const TString& p, const bool dashes=false) {
+
+
+  if (p.Contains("sig")) {
+    h->SetFillColor (2);
+    h->SetLineWidth (3);
+    h->SetMarkerColor(2);
+  }  else {
+    if (dashes) h->SetFillStyle(3135);
+    h->SetLineColor(kBlack);
+    h->SetLineWidth(2);
+    if (p == "qcd") {
+      h->SetFillColor (5004);
+      h->SetMarkerColor(5000);
+    } else if (p == "qcd2") {
+      h->SetFillColor (5006);
+      h->SetMarkerColor(5000);
+    }  else if (p == "znng") {
+      h->SetFillColor (5000);
+      h->SetMarkerColor(5000);
+    } else if (p == "wlnug") {
+      h->SetFillColor(5002);
+      h->SetMarkerColor(5002);
+    } else if (p == "gjets") {
+      h->SetFillColor(5003);
+      h->SetMarkerColor(5003);
+    } else if (p == "wenu") {
+      h->SetFillColor(5001);
+      h->SetMarkerColor(5001);
+    } else if (p == "st") {
+      h->SetFillColor(5005);
+      h->SetMarkerColor(5005);
+    }
+  }
+  return;
+}
 
 
 void set_style(TH1 * h, const TString& p, const bool dashes=false) {
